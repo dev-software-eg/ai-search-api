@@ -33,10 +33,13 @@ ${JSON.stringify(caseStudies, null, 2)}
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1000,
       system: systemPrompt,
-      messages: [{ role: 'user', content: need }]
+      messages: [
+        { role: 'user', content: need },
+        { role: 'assistant', content: '[' }
+      ]
     });
 
-    const raw = message.content[0].text.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
+    const raw = '[' + message.content[0].text.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
     const matches = JSON.parse(raw);
     return res.status(200).json({ matches });
 
