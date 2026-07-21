@@ -3,6 +3,8 @@ import {
   buildSystemPrompt,
   CONTACT_FORM_TOKEN_RE,
   CASE_STUDIES_TOKEN_RE,
+  CONTACT_EMAIL,
+  CONTACT_PHONE,
 } from "./systemPrompt.js";
 import Anthropic from "@anthropic-ai/sdk";
 
@@ -42,8 +44,15 @@ export default async function handler(req, res) {
     const rawReply = message.content[0].text;
 
     const tokenMatch = rawReply.match(CONTACT_FORM_TOKEN_RE);
-    const showContactForm = Boolean(tokenMatch);
-    const needsSummary = tokenMatch ? tokenMatch[1].trim() : null;
+
+    // Model sometimes gives out contact info in prose without the token.
+    // Fall back to detecting the email/phone directly so the flag doesn't
+    // depend entirely on the model remembering to emit it.
+    const showContactForm =
+      Boolean(tokenMatch) ||
+      rawReply.includes(CONTACT_EMAIL) ||
+      rawReply.includes(CONTACT_PHONE);
+    const needsSummary = tokenMatch?.[1]?.trim() || null;
 
     const caseStudiesMatch = rawReply.match(CASE_STUDIES_TOKEN_RE);
     let recommendations = [];

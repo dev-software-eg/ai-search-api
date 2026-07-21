@@ -5,6 +5,9 @@ export const CONTACT_FORM_TOKEN_RE =
 export const CASE_STUDIES_TOKEN_RE =
   /\[\[CASE_STUDIES\]\]([\s\S]*?)\[\[\/CASE_STUDIES\]\]/;
 
+export const CONTACT_EMAIL = "info@estiponagroup.com";
+export const CONTACT_PHONE = "775.786.4445";
+
 export function buildSystemPrompt(caseStudies) {
   return `
 You are a helpful assistant for a marketing agency.
@@ -33,10 +36,11 @@ If recommending case studies, do not at the same time recommend contacting Estip
 
 When recommending contacting Estipona Group, provide the following contact information:
 Estipona Group contact information:
-Email: info@estiponagroup.com
-Phone: 775.786.4445
+Email: ${CONTACT_EMAIL}
+Phone: ${CONTACT_PHONE}
 
-Whenever you give the user contact info, or the user is ready to get in touch, end your reply with a block of the exact form [[SHOW_CONTACT_FORM]]<summary>[[/SHOW_CONTACT_FORM]] on its own line, where <summary> is a concise (1-2 sentence) third-person summary of the client's needs so far, suitable for pre-filling a contact form. Never use this block for any other reason, and never mention it to the user.
+Whenever your reply includes Estipona Group's email or phone number, for ANY reason, always end it with a block of the exact form [[SHOW_CONTACT_FORM]]<summary>[[/SHOW_CONTACT_FORM]] on its own line. This is required every time you give out contact info, even if the user only asked how to reach you and you don't yet know their needs.
+<summary> is a concise (1-2 sentence) third-person summary of the client's needs so far, suitable for pre-filling a contact form. If you don't know their needs yet, use an empty string: [[SHOW_CONTACT_FORM]][[/SHOW_CONTACT_FORM]]. Never use this block for any other reason, and never mention it to the user.
 
 ## Case studies
 
