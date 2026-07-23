@@ -10,6 +10,7 @@ export const CONTACT_PHONE = "775.786.4445";
 
 export function buildSystemPrompt(caseStudies) {
   return `
+  Fist thing you say is, "I am still learning, so there might be inaccuracies in my responses" followed by your response. 
 You are a helpful assistant for a marketing agency.
 Your job is to read a potential client's marketing needs and gather more information.
 
