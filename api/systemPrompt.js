@@ -9,7 +9,7 @@ export const CONTACT_EMAIL = "info@estiponagroup.com";
 export const CONTACT_PHONE = "775.786.4445";
 
 export function buildSystemPrompt(caseStudies) {
-  return `
+  return ` 
 You are a helpful assistant for a marketing agency.
 Your job is to read a potential client's marketing needs and gather more information.
 

@@ -7,6 +7,7 @@ import {
   CONTACT_PHONE,
 } from "./systemPrompt.js";
 import Anthropic from "@anthropic-ai/sdk";
+import { logChat } from "./lib/mongodb.js";
 
 const client = new Anthropic();
 
@@ -21,6 +22,8 @@ export default async function handler(req, res) {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     const history = Array.isArray(body?.messages) ? body.messages : null;
     const need = body?.need;
+    const conversationId =
+      typeof body?.conversationId === "string" ? body.conversationId : null;
 
     const messages =
       history ?? (need ? [{ role: "user", content: need }] : null);
@@ -82,6 +85,16 @@ export default async function handler(req, res) {
 
     const hasCaseStudies = recommendedCaseStudies.length > 0;
 
+    // eg-website-ui's proxy forwards the real visitor's IP via this custom
+    // header, since Vercel overwrites x-forwarded-for on each function-to-
+    // function hop with the actual connecting IP. Fall back to
+    // x-forwarded-for for direct callers (e.g. curl testing this endpoint).
+    const ip =
+      req.headers["x-original-client-ip"] ||
+      (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
+      req.socket?.remoteAddress ||
+      null;
+
     const reply = rawReply
       .replace(CONTACT_FORM_TOKEN_RE, "")
       .replace(CASE_STUDIES_TOKEN_RE, "")
@@ -91,6 +104,17 @@ export default async function handler(req, res) {
       // syntax never reaches the user.
       .split(/\[\[(?:CASE_STUDIES|SHOW_CONTACT_FORM)\]\]/)[0]
       .trim();
+
+    await logChat({
+      conversationId,
+      timestamp: new Date(),
+      ip,
+      userAgent: req.headers["user-agent"] || null,
+      messages: [...messages, { role: "assistant", content: reply }],
+      showContactForm,
+      needsSummary,
+      hasCaseStudies,
+    });
 
     return res.status(200).json({
       reply,
