@@ -85,7 +85,12 @@ export default async function handler(req, res) {
 
     const hasCaseStudies = recommendedCaseStudies.length > 0;
 
+    // eg-website-ui's proxy forwards the real visitor's IP via this custom
+    // header, since Vercel overwrites x-forwarded-for on each function-to-
+    // function hop with the actual connecting IP. Fall back to
+    // x-forwarded-for for direct callers (e.g. curl testing this endpoint).
     const ip =
+      req.headers["x-original-client-ip"] ||
       (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
       req.socket?.remoteAddress ||
       null;
